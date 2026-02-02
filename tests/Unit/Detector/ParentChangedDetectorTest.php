@@ -1,0 +1,91 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Copyright (c) Florian Krämer (https://florian-kraemer.net)
+ * Licensed under The GPL License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright Copyright (c) Florian Krämer (https://florian-kraemer.net)
+ * @author    Florian Krämer
+ * @link      https://github.com/Phauthentic
+ * @license   https://opensource.org/licenses/GPL-3.0 GPL License
+ */
+
+namespace Phauthentic\BcCheck\Tests\Unit\Detector;
+
+use Phauthentic\BcCheck\Detector\ParentChangedDetector;
+use Phauthentic\BcCheck\ValueObject\BcBreakType;
+use Phauthentic\BcCheck\ValueObject\ClassInfo;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+
+#[CoversClass(ParentChangedDetector::class)]
+final class ParentChangedDetectorTest extends TestCase
+{
+    private ParentChangedDetector $detector;
+
+    protected function setUp(): void
+    {
+        $this->detector = new ParentChangedDetector();
+    }
+
+    public function testDetectsParentRemoved(): void
+    {
+        $before = new ClassInfo(name: 'App\\Service', parentClass: 'App\\BaseService');
+        $after = new ClassInfo(name: 'App\\Service', parentClass: null);
+
+        $breaks = $this->detector->detect($before, $after);
+
+        $this->assertCount(1, $breaks);
+        $this->assertSame(BcBreakType::ParentChanged, $breaks[0]->type);
+        $this->assertStringContainsString('no longer extends', $breaks[0]->message);
+        $this->assertStringContainsString('BaseService', $breaks[0]->message);
+    }
+
+    public function testDetectsParentChanged(): void
+    {
+        $before = new ClassInfo(name: 'App\\Service', parentClass: 'App\\BaseService');
+        $after = new ClassInfo(name: 'App\\Service', parentClass: 'App\\NewBaseService');
+
+        $breaks = $this->detector->detect($before, $after);
+
+        $this->assertCount(1, $breaks);
+        $this->assertSame(BcBreakType::ParentChanged, $breaks[0]->type);
+        $this->assertStringContainsString('changed parent from', $breaks[0]->message);
+        $this->assertStringContainsString('BaseService', $breaks[0]->message);
+        $this->assertStringContainsString('NewBaseService', $breaks[0]->message);
+    }
+
+    public function testNoBreakWhenParentUnchanged(): void
+    {
+        $before = new ClassInfo(name: 'App\\Service', parentClass: 'App\\BaseService');
+        $after = new ClassInfo(name: 'App\\Service', parentClass: 'App\\BaseService');
+
+        $breaks = $this->detector->detect($before, $after);
+
+        $this->assertCount(0, $breaks);
+    }
+
+    public function testNoBreakWhenNoParent(): void
+    {
+        $before = new ClassInfo(name: 'App\\Service', parentClass: null);
+        $after = new ClassInfo(name: 'App\\Service', parentClass: null);
+
+        $breaks = $this->detector->detect($before, $after);
+
+        $this->assertCount(0, $breaks);
+    }
+
+    public function testNoBreakWhenParentAdded(): void
+    {
+        $before = new ClassInfo(name: 'App\\Service', parentClass: null);
+        $after = new ClassInfo(name: 'App\\Service', parentClass: 'App\\BaseService');
+
+        $breaks = $this->detector->detect($before, $after);
+
+        $this->assertCount(0, $breaks);
+    }
+}

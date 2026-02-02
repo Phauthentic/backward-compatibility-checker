@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-phar:
+    name: Build PHAR
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          ini-values: phar.readonly=0
+          coverage: none
+
+      - name: Install dependencies (no dev)
+        run: composer install --prefer-dist --no-progress --no-dev --optimize-autoloader
+
+      - name: Download Box
+        run: |
+          curl -LSs https://github.com/box-project/box/releases/latest/download/box.phar -o box.phar
+          chmod +x box.phar
+
+      - name: Build PHAR
+        run: php box.phar compile
+
+      - name: Verify PHAR
+        run: php bc-check.phar --version
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bc-check.phar
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,27 @@
+{
+    "alias": "bc-check.phar",
+    "banner": false,
+    "chmod": "0755",
+    "compactors": [
+        "KevinGH\\Box\\Compactor\\Php",
+        "KevinGH\\Box\\Compactor\\Json"
+    ],
+    "compression": "GZ",
+    "directories": [
+        "src"
+    ],
+    "files": [
+        "config/bc-check.yaml.dist"
+    ],
+    "finder": [
+        {
+            "name": "*.php",
+            "exclude": ["Tests", "tests", "Test", "test"],
+            "in": "vendor"
+        }
+    ],
+    "git": "git-version",
+    "main": "bin/bc-check",
+    "output": "bc-check.phar",
+    "stub": true
+}

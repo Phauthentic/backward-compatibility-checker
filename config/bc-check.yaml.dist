@@ -1,0 +1,24 @@
+# BC Check Configuration
+# Copy this file to bc-check.yaml and customize as needed
+
+# Patterns to include (regex matching FQCN or FQCN::method)
+# If empty, all classes are included
+include:
+  # - '^App\\Api\\.*'
+  # - '^App\\Service\\.*::handle.*'
+
+# Patterns to exclude (regex matching FQCN or FQCN::method)
+exclude:
+  - '.*\\Internal\\.*'
+  - '.*Test$'
+  - '.*TestCase$'
+
+# Source directories to scan (relative to repository root)
+source_directories:
+  - src/
+
+# External detector classes (must implement BcBreakDetectorInterface)
+# These classes must be autoloadable via Composer
+external_detectors:
+  # - 'Vendor\\Custom\\MyCustomDetector'
+  # - 'Vendor\\Custom\\AnotherDetector'
