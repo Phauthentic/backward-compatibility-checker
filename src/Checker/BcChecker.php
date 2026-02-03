@@ -50,8 +50,8 @@ final readonly class BcChecker implements BcCheckerInterface
         $renamesByFile = $this->renameDetector->detect($diff);
 
         // Analyze both versions with file mapping
-        $beforeResult = $this->analyzer->analyzeAtCommitWithFileMap($fromCommit);
-        $afterResult = $this->analyzer->analyzeAtCommitWithFileMap($toCommit);
+        $beforeResult = $this->analyzer->analyzeAtCommitWithFileMap($fromCommit, 'source');
+        $afterResult = $this->analyzer->analyzeAtCommitWithFileMap($toCommit, 'target');
 
         $breaks = [];
 
