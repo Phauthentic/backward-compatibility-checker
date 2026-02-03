@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phauthentic\BcCheck\Detector;
 
+use Phauthentic\BcCheck\Diff\RenameMap;
 use Phauthentic\BcCheck\ValueObject\BcBreak;
 use Phauthentic\BcCheck\ValueObject\ClassInfo;
 
@@ -40,11 +41,16 @@ final class DetectorRegistry
     /**
      * @return list<BcBreak>
      */
-    public function detectAll(ClassInfo $before, ClassInfo $after): array
+    public function detectAll(ClassInfo $before, ClassInfo $after, ?RenameMap $renameMap = null): array
     {
         $breaks = [];
 
         foreach ($this->detectors as $detector) {
+            // Pass rename map to detectors that support it
+            if ($detector instanceof RenameAwareDetectorInterface) {
+                $detector->setRenameMap($renameMap);
+            }
+
             $detected = $detector->detect($before, $after);
             foreach ($detected as $break) {
                 $breaks[] = $break;

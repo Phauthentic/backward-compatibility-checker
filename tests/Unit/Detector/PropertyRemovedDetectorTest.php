@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Phauthentic\BcCheck\Tests\Unit\Detector;
 
 use Phauthentic\BcCheck\Detector\PropertyRemovedDetector;
+use Phauthentic\BcCheck\Detector\RenameAwareDetectorInterface;
+use Phauthentic\BcCheck\Diff\RenameMap;
 use Phauthentic\BcCheck\ValueObject\BcBreakType;
 use Phauthentic\BcCheck\ValueObject\ClassInfo;
 use Phauthentic\BcCheck\ValueObject\PropertyInfo;
@@ -75,5 +77,61 @@ final class PropertyRemovedDetectorTest extends TestCase
         $breaks = $this->detector->detect($before, $after);
 
         $this->assertCount(0, $breaks);
+    }
+
+    public function testImplementsRenameAwareInterface(): void
+    {
+        $this->assertInstanceOf(RenameAwareDetectorInterface::class, $this->detector);
+    }
+
+    public function testDetectsRenamedProperty(): void
+    {
+        $before = new ClassInfo(
+            name: 'App\\Entity',
+            properties: [
+                new PropertyInfo(name: 'oldName', visibility: Visibility::Public),
+            ],
+        );
+
+        $after = new ClassInfo(
+            name: 'App\\Entity',
+            properties: [
+                new PropertyInfo(name: 'newName', visibility: Visibility::Public),
+            ],
+        );
+
+        $renameMap = new RenameMap([], ['oldName' => 'newName']);
+        $this->detector->setRenameMap($renameMap);
+
+        $breaks = $this->detector->detect($before, $after);
+
+        $this->assertCount(1, $breaks);
+        $this->assertSame(BcBreakType::PropertyRenamed, $breaks[0]->type);
+        $this->assertStringContainsString('oldName', $breaks[0]->message);
+        $this->assertStringContainsString('newName', $breaks[0]->message);
+        $this->assertStringContainsString('renamed', $breaks[0]->message);
+    }
+
+    public function testReportsRemovedWhenRenameMapDoesNotHaveEntry(): void
+    {
+        $before = new ClassInfo(
+            name: 'App\\Entity',
+            properties: [
+                new PropertyInfo(name: 'deletedProp', visibility: Visibility::Public),
+            ],
+        );
+
+        $after = new ClassInfo(
+            name: 'App\\Entity',
+            properties: [],
+        );
+
+        $renameMap = new RenameMap([], ['otherProp' => 'renamedOther']);
+        $this->detector->setRenameMap($renameMap);
+
+        $breaks = $this->detector->detect($before, $after);
+
+        $this->assertCount(1, $breaks);
+        $this->assertSame(BcBreakType::PropertyRemoved, $breaks[0]->type);
     }
 }

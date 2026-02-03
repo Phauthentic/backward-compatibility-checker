@@ -23,7 +23,15 @@ interface CodebaseAnalyzerInterface
     /**
      * Analyze the codebase at a specific commit.
      *
+     * @param string $label Optional label for event reporting (e.g., "source", "target")
      * @return array<string, ClassInfo> Map of FQCN to ClassInfo
      */
-    public function analyzeAtCommit(string $commitHash): array;
+    public function analyzeAtCommit(string $commitHash, string $label = ''): array;
+
+    /**
+     * Analyze the codebase at a specific commit with file mapping.
+     *
+     * @param string $label Optional label for event reporting (e.g., "source", "target")
+     */
+    public function analyzeAtCommitWithFileMap(string $commitHash, string $label = ''): AnalysisResult;
 }

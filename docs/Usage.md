@@ -47,6 +47,37 @@ If no config file is specified, BC Check looks for these files in order:
 2. `bc-check.yml`
 3. `bc-check.yaml.dist`
 
+### Show Files Being Processed
+
+Use `--show-files` to display which files are being analyzed:
+
+```bash
+bc-check check /path/to/repo v1.0.0 v2.0.0 --show-files
+```
+
+Output:
+
+```
+Processing (source): src/Service/UserService.php
+Processing (source): src/Entity/User.php
+Processing (target): src/Service/UserService.php
+Processing (target): src/Entity/User.php
+
+  ✓ No backward compatibility breaks detected!
+
+Time: 0.12s
+```
+
+The `(source)` label indicates files from the "from" commit (older version), while `(target)` indicates files from the "to" commit (newer version).
+
+### Execution Timing
+
+BC Check always displays execution time at the end of the output:
+
+```
+Time: 0.52s
+```
+
 ### Output Formats
 
 BC Check supports multiple output formats:
@@ -70,6 +101,8 @@ Found 3 BC break(s):
   ✗ [METHOD_REMOVED] Public method App\Service\UserService::getUser() was removed
   ✗ [METHOD_SIGNATURE_CHANGED] Method App\Service\UserService::createUser() has more required parameters (1 -> 2)
   ✗ [CLASS_MADE_FINAL] Class App\Entity\User was made final
+
+Time: 0.52s
 ```
 
 #### JSON Output
