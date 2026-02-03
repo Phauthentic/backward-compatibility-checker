@@ -37,12 +37,21 @@ final readonly class CodebaseAnalyzer implements CodebaseAnalyzerInterface
      */
     public function analyzeAtCommit(string $commitHash): array
     {
+        return $this->analyzeAtCommitWithFileMap($commitHash)->getClasses();
+    }
+
+    /**
+     * Analyze the codebase at a specific commit with file mapping.
+     */
+    public function analyzeAtCommitWithFileMap(string $commitHash): AnalysisResult
+    {
         $files = $this->git->getPhpFilesAtCommit(
             $commitHash,
             $this->config->getSourceDirectories(),
         );
 
         $classes = [];
+        $classToFile = [];
 
         foreach ($files as $file) {
             try {
@@ -52,6 +61,7 @@ final readonly class CodebaseAnalyzer implements CodebaseAnalyzerInterface
                 foreach ($parsedClasses as $classInfo) {
                     if ($this->config->shouldInclude($classInfo->name)) {
                         $classes[$classInfo->name] = $classInfo;
+                        $classToFile[$classInfo->name] = $file;
                     }
                 }
             } catch (Throwable) {
@@ -60,6 +70,6 @@ final readonly class CodebaseAnalyzer implements CodebaseAnalyzerInterface
             }
         }
 
-        return $classes;
+        return new AnalysisResult($classes, $classToFile);
     }
 }

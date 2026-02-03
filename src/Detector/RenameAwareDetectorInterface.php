@@ -14,21 +14,14 @@ declare(strict_types=1);
  * @license   https://opensource.org/licenses/GPL-3.0 GPL License
  */
 
-namespace Phauthentic\BcCheck\Parser;
+namespace Phauthentic\BcCheck\Detector;
 
-use Phauthentic\BcCheck\ValueObject\ClassInfo;
+use Phauthentic\BcCheck\Diff\RenameMap;
 
-interface CodebaseAnalyzerInterface
+interface RenameAwareDetectorInterface extends BcBreakDetectorInterface
 {
     /**
-     * Analyze the codebase at a specific commit.
-     *
-     * @return array<string, ClassInfo> Map of FQCN to ClassInfo
+     * Set the rename map for the current class being analyzed.
      */
-    public function analyzeAtCommit(string $commitHash): array;
-
-    /**
-     * Analyze the codebase at a specific commit with file mapping.
-     */
-    public function analyzeAtCommitWithFileMap(string $commitHash): AnalysisResult;
+    public function setRenameMap(?RenameMap $map): void;
 }

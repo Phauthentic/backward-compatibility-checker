@@ -16,13 +16,21 @@ declare(strict_types=1);
 
 namespace Phauthentic\BcCheck\Detector;
 
+use Phauthentic\BcCheck\Diff\RenameMap;
 use Phauthentic\BcCheck\ValueObject\BcBreak;
 use Phauthentic\BcCheck\ValueObject\BcBreakType;
 use Phauthentic\BcCheck\ValueObject\ClassInfo;
 use Phauthentic\BcCheck\ValueObject\Visibility;
 
-final readonly class MethodRemovedDetector implements BcBreakDetectorInterface
+final class MethodRemovedDetector implements RenameAwareDetectorInterface
 {
+    private ?RenameMap $renameMap = null;
+
+    public function setRenameMap(?RenameMap $map): void
+    {
+        $this->renameMap = $map;
+    }
+
     public function detect(ClassInfo $before, ClassInfo $after): array
     {
         $breaks = [];
@@ -30,7 +38,27 @@ final readonly class MethodRemovedDetector implements BcBreakDetectorInterface
         foreach ($before->getPublicOrProtectedMethods() as $method) {
             $afterMethod = $after->getMethod($method->name);
 
-            if ($afterMethod === null) {
+            if ($afterMethod !== null) {
+                continue;
+            }
+
+            // Check if this was a rename
+            $newName = $this->renameMap?->getMethodNewName($method->name);
+
+            if ($newName !== null && $after->getMethod($newName) !== null) {
+                $breaks[] = new BcBreak(
+                    message: sprintf(
+                        '%s method %s::%s() was renamed to %s()',
+                        $method->visibility === Visibility::Public ? 'Public' : 'Protected',
+                        $before->name,
+                        $method->name,
+                        $newName,
+                    ),
+                    className: $before->name,
+                    memberName: $method->name,
+                    type: BcBreakType::MethodRenamed,
+                );
+            } else {
                 $breaks[] = new BcBreak(
                     message: sprintf(
                         '%s method %s::%s() was removed',

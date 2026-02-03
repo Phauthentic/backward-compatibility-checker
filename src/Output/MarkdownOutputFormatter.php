@@ -104,6 +104,7 @@ final readonly class MarkdownOutputFormatter implements OutputFormatterInterface
             BcBreakType::ParentChanged => 'Class Changes',
 
             BcBreakType::MethodRemoved,
+            BcBreakType::MethodRenamed,
             BcBreakType::MethodSignatureChanged,
             BcBreakType::MethodReturnTypeChanged,
             BcBreakType::MethodVisibilityReduced,
@@ -113,6 +114,7 @@ final readonly class MarkdownOutputFormatter implements OutputFormatterInterface
             BcBreakType::MethodMadeAbstract => 'Method Changes',
 
             BcBreakType::PropertyRemoved,
+            BcBreakType::PropertyRenamed,
             BcBreakType::PropertyVisibilityReduced,
             BcBreakType::PropertyTypeChanged,
             BcBreakType::PropertyMadeReadonly,
