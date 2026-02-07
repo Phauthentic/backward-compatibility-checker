@@ -162,6 +162,7 @@ final class CheckCommand extends Command
 
         // Run check
         $startTime = microtime(true);
+
         try {
             $breaks = $checker->check($fromCommit, $toCommit);
         } catch (InvalidArgumentException $e) {

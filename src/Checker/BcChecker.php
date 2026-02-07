@@ -18,7 +18,6 @@ namespace Phauthentic\BcCheck\Checker;
 
 use Phauthentic\BcCheck\Detector\DetectorRegistry;
 use Phauthentic\BcCheck\Diff\RenameDetector;
-use Phauthentic\BcCheck\Diff\RenameMap;
 use Phauthentic\BcCheck\Git\GitRepositoryInterface;
 use Phauthentic\BcCheck\Parser\CodebaseAnalyzerInterface;
 use Phauthentic\BcCheck\ValueObject\BcBreak;
