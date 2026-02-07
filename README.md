@@ -91,6 +91,7 @@ make docker-qa      # Run QA in container
 
 * [Installation](docs/Installation.md) - Install via Composer, PHAR, or Docker
 * [Usage](docs/Usage.md) - CLI usage, examples, output formats
+* [Running it with old PHP Versions](docs/Docker-External-Projects.md) - Run via Docker against legacy codebases / PHP versions
 * [Configuration](docs/Configuration.md) - YAML config options, regex patterns
 * [Detectors](docs/Detectors.md) - List of all detected BC breaks
 * [Custom Detectors](docs/Custom-Detectors.md) - Create your own detectors

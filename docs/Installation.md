@@ -69,6 +69,8 @@ Or use the Docker image directly:
 docker run --rm -v $(pwd):/app phauthentic/bc-check check /app abc123 def456
 ```
 
+For analyzing **external projects** (especially on systems with older PHP versions), see the [Docker External Projects](Docker-External-Projects.md) guide.
+
 ## Verify Installation
 
 Verify the installation by running:

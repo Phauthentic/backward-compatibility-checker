@@ -155,6 +155,7 @@ make bc-check
 
 ## Next Steps
 
+- [Docker External Projects](Docker-External-Projects.md) - Run via Docker against external codebases
 - [Configuration](Configuration.md) - Configure filtering and patterns
 - [Detectors](Detectors.md) - See all detected BC breaks
 - [CI Integration](CI-Integration.md) - Integrate with CI/CD pipelines
