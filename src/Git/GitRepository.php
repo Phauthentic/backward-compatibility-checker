@@ -98,6 +98,13 @@ final readonly class GitRepository implements GitRepositoryInterface
         return $this->repositoryPath;
     }
 
+    public function getDiff(string $fromCommit, string $toCommit): string
+    {
+        $process = $this->runGit(['diff', '--unified=0', $fromCommit, $toCommit]);
+
+        return $process->getOutput();
+    }
+
     /**
      * @param list<string> $arguments
      */

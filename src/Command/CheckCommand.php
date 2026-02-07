@@ -17,10 +17,11 @@ declare(strict_types=1);
 namespace Phauthentic\BcCheck\Command;
 
 use InvalidArgumentException;
+use Phauthentic\BcCheck\Checker\BcCheckerInterface;
 use Phauthentic\BcCheck\Config\Configuration;
 use Phauthentic\BcCheck\Config\ConfigurationException;
 use Phauthentic\BcCheck\Config\ConfigurationLoader;
-use Phauthentic\BcCheck\Factory\BcCheckerFactory;
+use Phauthentic\BcCheck\DependencyInjection\ContainerFactory;
 use Phauthentic\BcCheck\Git\GitException;
 use Phauthentic\BcCheck\Output\CheckstyleOutputFormatter;
 use Phauthentic\BcCheck\Output\GithubActionsFormatter;
@@ -93,6 +94,12 @@ final class CheckCommand extends Command
                     self::FORMAT_GITLAB,
                 ),
                 self::FORMAT_TEXT,
+            )
+            ->addOption(
+                'show-files',
+                null,
+                InputOption::VALUE_NONE,
+                'Show files being processed',
             );
     }
 
@@ -108,6 +115,8 @@ final class CheckCommand extends Command
         $configPath = $input->getOption('config');
         /** @var string $format */
         $format = $input->getOption('format');
+        /** @var bool $showFiles */
+        $showFiles = $input->getOption('show-files');
 
         // Resolve repository path
         if (!str_starts_with($repositoryPath, '/')) {
@@ -133,10 +142,18 @@ final class CheckCommand extends Command
         // Get formatter
         $formatter = $this->getFormatter($format);
 
-        // Create checker
+        // Build container with services
         try {
-            $factory = new BcCheckerFactory();
-            $checker = $factory->create($repositoryPath, $config);
+            $containerFactory = new ContainerFactory();
+            $container = $containerFactory->create(
+                $repositoryPath,
+                $config,
+                $output,
+                $showFiles,
+            );
+
+            /** @var BcCheckerInterface $checker */
+            $checker = $container->get(BcCheckerInterface::class);
         } catch (GitException $e) {
             $output->writeln(sprintf('<error>Git error: %s</error>', $e->getMessage()));
 
@@ -144,6 +161,7 @@ final class CheckCommand extends Command
         }
 
         // Run check
+        $startTime = microtime(true);
         try {
             $breaks = $checker->check($fromCommit, $toCommit);
         } catch (InvalidArgumentException $e) {
@@ -155,9 +173,14 @@ final class CheckCommand extends Command
 
             return Command::FAILURE;
         }
+        $duration = microtime(true) - $startTime;
 
         // Output results
         $formatter->format($breaks, $output);
+
+        // Output timing
+        $output->writeln('');
+        $output->writeln(sprintf('Time: %.2fs', $duration));
 
         return $breaks === [] ? Command::SUCCESS : Command::FAILURE;
     }

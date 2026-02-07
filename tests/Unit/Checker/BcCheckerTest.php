@@ -20,6 +20,7 @@ use Phauthentic\BcCheck\Checker\BcChecker;
 use Phauthentic\BcCheck\Checker\InvalidCommitException;
 use Phauthentic\BcCheck\Detector\DetectorRegistry;
 use Phauthentic\BcCheck\Git\GitRepositoryInterface;
+use Phauthentic\BcCheck\Parser\AnalysisResult;
 use Phauthentic\BcCheck\Parser\CodebaseAnalyzerInterface;
 use Phauthentic\BcCheck\ValueObject\BcBreak;
 use Phauthentic\BcCheck\ValueObject\BcBreakType;
@@ -35,15 +36,19 @@ final class BcCheckerTest extends TestCase
     {
         $git = $this->createStub(GitRepositoryInterface::class);
         $git->method('isValidCommit')->willReturn(true);
+        $git->method('getDiff')->willReturn('');
 
         $beforeClasses = [
             'App\\Service' => new ClassInfo(name: 'App\\Service'),
         ];
         $afterClasses = [];
 
+        $beforeResult = new AnalysisResult($beforeClasses, ['App\\Service' => 'src/Service.php']);
+        $afterResult = new AnalysisResult($afterClasses, []);
+
         $analyzer = $this->createStub(CodebaseAnalyzerInterface::class);
-        $analyzer->method('analyzeAtCommit')
-            ->willReturnOnConsecutiveCalls($beforeClasses, $afterClasses);
+        $analyzer->method('analyzeAtCommitWithFileMap')
+            ->willReturnOnConsecutiveCalls($beforeResult, $afterResult);
 
         $registry = new DetectorRegistry([]);
 
@@ -60,6 +65,7 @@ final class BcCheckerTest extends TestCase
     {
         $git = $this->createStub(GitRepositoryInterface::class);
         $git->method('isValidCommit')->willReturn(true);
+        $git->method('getDiff')->willReturn('');
 
         $beforeClasses = [
             'App\\Contracts\\ServiceInterface' => new ClassInfo(
@@ -69,9 +75,12 @@ final class BcCheckerTest extends TestCase
         ];
         $afterClasses = [];
 
+        $beforeResult = new AnalysisResult($beforeClasses, ['App\\Contracts\\ServiceInterface' => 'src/Contracts/ServiceInterface.php']);
+        $afterResult = new AnalysisResult($afterClasses, []);
+
         $analyzer = $this->createStub(CodebaseAnalyzerInterface::class);
-        $analyzer->method('analyzeAtCommit')
-            ->willReturnOnConsecutiveCalls($beforeClasses, $afterClasses);
+        $analyzer->method('analyzeAtCommitWithFileMap')
+            ->willReturnOnConsecutiveCalls($beforeResult, $afterResult);
 
         $registry = new DetectorRegistry([]);
 
@@ -87,6 +96,7 @@ final class BcCheckerTest extends TestCase
     {
         $git = $this->createStub(GitRepositoryInterface::class);
         $git->method('isValidCommit')->willReturn(true);
+        $git->method('getDiff')->willReturn('');
 
         $beforeClass = new ClassInfo(name: 'App\\Service', isFinal: false);
         $afterClass = new ClassInfo(name: 'App\\Service', isFinal: true);
@@ -94,9 +104,12 @@ final class BcCheckerTest extends TestCase
         $beforeClasses = ['App\\Service' => $beforeClass];
         $afterClasses = ['App\\Service' => $afterClass];
 
+        $beforeResult = new AnalysisResult($beforeClasses, ['App\\Service' => 'src/Service.php']);
+        $afterResult = new AnalysisResult($afterClasses, ['App\\Service' => 'src/Service.php']);
+
         $analyzer = $this->createStub(CodebaseAnalyzerInterface::class);
-        $analyzer->method('analyzeAtCommit')
-            ->willReturnOnConsecutiveCalls($beforeClasses, $afterClasses);
+        $analyzer->method('analyzeAtCommitWithFileMap')
+            ->willReturnOnConsecutiveCalls($beforeResult, $afterResult);
 
         $expectedBreak = new BcBreak(
             message: 'Class made final',
@@ -155,14 +168,18 @@ final class BcCheckerTest extends TestCase
     {
         $git = $this->createStub(GitRepositoryInterface::class);
         $git->method('isValidCommit')->willReturn(true);
+        $git->method('getDiff')->willReturn('');
 
         $classInfo = new ClassInfo(name: 'App\\Service');
         $beforeClasses = ['App\\Service' => $classInfo];
         $afterClasses = ['App\\Service' => $classInfo];
 
+        $beforeResult = new AnalysisResult($beforeClasses, ['App\\Service' => 'src/Service.php']);
+        $afterResult = new AnalysisResult($afterClasses, ['App\\Service' => 'src/Service.php']);
+
         $analyzer = $this->createStub(CodebaseAnalyzerInterface::class);
-        $analyzer->method('analyzeAtCommit')
-            ->willReturnOnConsecutiveCalls($beforeClasses, $afterClasses);
+        $analyzer->method('analyzeAtCommitWithFileMap')
+            ->willReturnOnConsecutiveCalls($beforeResult, $afterResult);
 
         $registry = new DetectorRegistry([]);
 

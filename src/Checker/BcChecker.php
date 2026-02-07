@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Phauthentic\BcCheck\Checker;
 
 use Phauthentic\BcCheck\Detector\DetectorRegistry;
+use Phauthentic\BcCheck\Diff\RenameDetector;
+use Phauthentic\BcCheck\Diff\RenameMap;
 use Phauthentic\BcCheck\Git\GitRepositoryInterface;
 use Phauthentic\BcCheck\Parser\CodebaseAnalyzerInterface;
 use Phauthentic\BcCheck\ValueObject\BcBreak;
@@ -28,6 +30,7 @@ final readonly class BcChecker implements BcCheckerInterface
         private CodebaseAnalyzerInterface $analyzer,
         private DetectorRegistry $registry,
         private GitRepositoryInterface $git,
+        private RenameDetector $renameDetector = new RenameDetector(),
     ) {
     }
 
@@ -42,15 +45,19 @@ final readonly class BcChecker implements BcCheckerInterface
             throw InvalidCommitException::invalidToCommit($toCommit);
         }
 
-        // Analyze both versions
-        $beforeClasses = $this->analyzer->analyzeAtCommit($fromCommit);
-        $afterClasses = $this->analyzer->analyzeAtCommit($toCommit);
+        // Detect renames from diff
+        $diff = $this->git->getDiff($fromCommit, $toCommit);
+        $renamesByFile = $this->renameDetector->detect($diff);
+
+        // Analyze both versions with file mapping
+        $beforeResult = $this->analyzer->analyzeAtCommitWithFileMap($fromCommit, 'source');
+        $afterResult = $this->analyzer->analyzeAtCommitWithFileMap($toCommit, 'target');
 
         $breaks = [];
 
         // Check for removed classes
-        foreach ($beforeClasses as $className => $beforeClass) {
-            if (!isset($afterClasses[$className])) {
+        foreach ($beforeResult->getClasses() as $className => $beforeClass) {
+            if (!$afterResult->hasClass($className)) {
                 $breaks[] = new BcBreak(
                     message: sprintf('%s %s was removed', ucfirst($beforeClass->type->value), $className),
                     className: $className,
@@ -60,9 +67,14 @@ final readonly class BcChecker implements BcCheckerInterface
                 continue;
             }
 
-            // Compare classes
-            $afterClass = $afterClasses[$className];
-            $detected = $this->registry->detectAll($beforeClass, $afterClass);
+            // Get rename map for this class's file
+            $filePath = $beforeResult->getFileForClass($className);
+            $renameMap = $filePath !== null ? ($renamesByFile[$filePath] ?? null) : null;
+
+            // Compare classes - we know afterClass exists because hasClass was true
+            /** @var \Phauthentic\BcCheck\ValueObject\ClassInfo $afterClass */
+            $afterClass = $afterResult->getClass($className);
+            $detected = $this->registry->detectAll($beforeClass, $afterClass, $renameMap);
 
             foreach ($detected as $break) {
                 $breaks[] = $break;
