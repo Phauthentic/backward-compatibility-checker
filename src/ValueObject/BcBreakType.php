@@ -24,6 +24,7 @@ enum BcBreakType: string
     case InterfaceRemoved = 'INTERFACE_REMOVED';
     case ParentChanged = 'PARENT_CHANGED';
     case MethodRemoved = 'METHOD_REMOVED';
+    case MethodRenamed = 'METHOD_RENAMED';
     case MethodSignatureChanged = 'METHOD_SIGNATURE_CHANGED';
     case MethodReturnTypeChanged = 'METHOD_RETURN_TYPE_CHANGED';
     case MethodVisibilityReduced = 'METHOD_VISIBILITY_REDUCED';
@@ -32,6 +33,7 @@ enum BcBreakType: string
     case MethodMadeNonStatic = 'METHOD_MADE_NON_STATIC';
     case MethodMadeAbstract = 'METHOD_MADE_ABSTRACT';
     case PropertyRemoved = 'PROPERTY_REMOVED';
+    case PropertyRenamed = 'PROPERTY_RENAMED';
     case PropertyVisibilityReduced = 'PROPERTY_VISIBILITY_REDUCED';
     case PropertyTypeChanged = 'PROPERTY_TYPE_CHANGED';
     case PropertyMadeReadonly = 'PROPERTY_MADE_READONLY';

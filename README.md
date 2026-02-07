@@ -66,6 +66,9 @@ vendor/bin/bc-check check /path/to/repo v1.0.0 v2.0.0 --format=junit
 
 # GitLab Code Quality
 vendor/bin/bc-check check /path/to/repo v1.0.0 v2.0.0 --format=gitlab
+
+# Show files being processed
+vendor/bin/bc-check check /path/to/repo v1.0.0 v2.0.0 --show-files
 ```
 
 ### Using Make
@@ -168,6 +171,21 @@ Found 3 BC break(s):
   ✗ [METHOD_REMOVED] Public method App\Service\UserService::getUser() was removed
   ✗ [METHOD_SIGNATURE_CHANGED] Method App\Service\UserService::createUser() has more required parameters (1 -> 2)
   ✗ [CLASS_MADE_FINAL] Class App\Entity\User was made final
+
+Time: 0.52s
+```
+
+### Verbose Output (--show-files)
+
+```
+Processing (source): src/Service/UserService.php
+Processing (source): src/Entity/User.php
+Processing (target): src/Service/UserService.php
+Processing (target): src/Entity/User.php
+
+  ✓ No backward compatibility breaks detected!
+
+Time: 0.12s
 ```
 
 ### JSON Format

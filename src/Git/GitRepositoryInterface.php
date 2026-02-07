@@ -40,4 +40,9 @@ interface GitRepositoryInterface
      * Get the repository root path.
      */
     public function getRepositoryPath(): string;
+
+    /**
+     * Get the unified diff between two commits.
+     */
+    public function getDiff(string $fromCommit, string $toCommit): string;
 }

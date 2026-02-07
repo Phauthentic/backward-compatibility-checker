@@ -16,13 +16,21 @@ declare(strict_types=1);
 
 namespace Phauthentic\BcCheck\Detector;
 
+use Phauthentic\BcCheck\Diff\RenameMap;
 use Phauthentic\BcCheck\ValueObject\BcBreak;
 use Phauthentic\BcCheck\ValueObject\BcBreakType;
 use Phauthentic\BcCheck\ValueObject\ClassInfo;
 use Phauthentic\BcCheck\ValueObject\Visibility;
 
-final readonly class PropertyRemovedDetector implements BcBreakDetectorInterface
+final class PropertyRemovedDetector implements RenameAwareDetectorInterface
 {
+    private ?RenameMap $renameMap = null;
+
+    public function setRenameMap(?RenameMap $map): void
+    {
+        $this->renameMap = $map;
+    }
+
     public function detect(ClassInfo $before, ClassInfo $after): array
     {
         $breaks = [];
@@ -30,7 +38,27 @@ final readonly class PropertyRemovedDetector implements BcBreakDetectorInterface
         foreach ($before->getPublicOrProtectedProperties() as $property) {
             $afterProperty = $after->getProperty($property->name);
 
-            if ($afterProperty === null) {
+            if ($afterProperty !== null) {
+                continue;
+            }
+
+            // Check if this was a rename
+            $newName = $this->renameMap?->getPropertyNewName($property->name);
+
+            if ($newName !== null && $after->getProperty($newName) !== null) {
+                $breaks[] = new BcBreak(
+                    message: sprintf(
+                        '%s property %s::$%s was renamed to $%s',
+                        $property->visibility === Visibility::Public ? 'Public' : 'Protected',
+                        $before->name,
+                        $property->name,
+                        $newName,
+                    ),
+                    className: $before->name,
+                    memberName: $property->name,
+                    type: BcBreakType::PropertyRenamed,
+                );
+            } else {
                 $breaks[] = new BcBreak(
                     message: sprintf(
                         '%s property %s::$%s was removed',
