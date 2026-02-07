@@ -5,10 +5,8 @@ services:
       dockerfile: Dockerfile
     volumes:
       - .:/app
-      - composer-cache:/root/.composer/cache
+      - composer-cache:/home/php/.composer/cache
     working_dir: /app
-    environment:
-      - COMPOSER_ALLOW_SUPERUSER=1
 
 volumes:
   composer-cache:

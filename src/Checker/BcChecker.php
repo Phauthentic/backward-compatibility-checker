@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Copyright (c) Florian Krämer (https://florian-kraemer.net)
- * Licensed under The GPL License
+ * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
@@ -18,7 +18,6 @@ namespace Phauthentic\BcCheck\Checker;
 
 use Phauthentic\BcCheck\Detector\DetectorRegistry;
 use Phauthentic\BcCheck\Diff\RenameDetector;
-use Phauthentic\BcCheck\Diff\RenameMap;
 use Phauthentic\BcCheck\Git\GitRepositoryInterface;
 use Phauthentic\BcCheck\Parser\CodebaseAnalyzerInterface;
 use Phauthentic\BcCheck\ValueObject\BcBreak;

@@ -1,4 +1,4 @@
-.PHONY: help install test coverage phpstan cs-check cs-fix qa docker-build docker-shell docker-test docker-qa docker-analyze analyze clean
+.PHONY: help install test coverage phpstan cs-check cs-fix qa up down restart docker-build shell docker-shell docker-test docker-qa docker-analyze analyze clean
 
 # Default target
 help:
@@ -18,7 +18,11 @@ help:
 	@echo "  docker-analyze REPO=<path> FROM=<commit> TO=<commit>  Run BC check in Docker"
 	@echo ""
 	@echo "Docker targets:"
+	@echo "  up           Start containers in background"
+	@echo "  down         Stop and remove containers"
+	@echo "  restart      Restart containers"
 	@echo "  docker-build Build Docker image"
+	@echo "  shell        Open shell in Docker container"
 	@echo "  docker-shell Open shell in Docker container"
 	@echo "  docker-test  Run tests in Docker container"
 	@echo "  docker-qa    Run all QA checks in Docker container"
@@ -62,8 +66,20 @@ endif
 	vendor/bin/bc-check check $(REPO) $(FROM) $(TO) $(if $(CONFIG),--config=$(CONFIG),) $(if $(FORMAT),--format=$(FORMAT),)
 
 # Docker targets
+up:
+	docker-compose up -d
+
+down:
+	docker-compose down
+
+restart:
+	docker-compose restart
+
 docker-build:
 	docker-compose build
+
+shell:
+	docker-compose run --rm php bash
 
 docker-shell:
 	docker-compose run --rm php bash

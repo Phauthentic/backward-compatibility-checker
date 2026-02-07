@@ -4,7 +4,7 @@
     "type": "project",
     "license": "GPL-3.0-or-later",
     "require": {
-        "php": "^8.4",
+        "php": "^8.3",
         "nikic/php-parser": "^5.0",
         "symfony/config": "^7.0",
         "symfony/console": "^7.0",
@@ -16,7 +16,7 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^12.0",
-        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan": "^2.1",
         "friendsofphp/php-cs-fixer": "^3.0"
     },
     "autoload": {
@@ -38,6 +38,7 @@
     },
     "bin": ["bin/bc-check"],
     "config": {
+        "bin-dir": "bin",
         "sort-packages": true
     }
 }
