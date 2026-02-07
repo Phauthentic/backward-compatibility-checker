@@ -34,7 +34,8 @@
         "phpstan": "phpstan analyse",
         "cs-check": "php-cs-fixer fix --dry-run --diff",
         "cs-fix": "php-cs-fixer fix",
-        "qa": ["@phpstan", "@cs-check", "@test"]
+        "qa": ["@phpstan", "@cs-check", "@test"],
+        "build-phar": "tools/box compile"
     },
     "bin": ["bin/bc-check"],
     "config": {
