@@ -35,6 +35,7 @@
     },
     "bin": ["bin/bc-check"],
     "config": {
+        "bin-dir": "bin",
         "sort-packages": true
     }
 }

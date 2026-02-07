@@ -5,3 +5,4 @@
 /.php-cs-fixer.cache
 /bc-check.phar
 /coverage/
+/bin/
