@@ -29,8 +29,12 @@ jobs:
 
     - name: Install Box
       run: |
-        wget -O phive.phar "https://phar.io/releases/phive.phar"
-        php phive.phar install humbug/box --copy tools/box
+        mkdir -p tools
+        curl -Ls https://github.com/box-project/box/releases/download/4.6.6/box.phar -o tools/box
+        chmod +x tools/box
+
+    - name: Configure Box
+      run: cp box.json.dist box.json
 
     - name: Build PHAR
       run: tools/box compile
