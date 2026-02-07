@@ -1,0 +1,63 @@
+name: 'Build and Release PHAR'
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-phar:
+    name: Build PHAR
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: json, fileinfo, phar
+        tools: composer
+
+    - name: Install dependencies
+      run: composer install --no-dev --optimize-autoloader
+
+    - name: Inject version from tag
+      run: sed -i "s/'1.0.0'/'${{ github.ref_name }}'/" bin/bc-check
+
+    - name: Install Box
+      run: |
+        wget -O phive.phar "https://phar.io/releases/phive.phar"
+        php phive.phar install humbug/box --copy tools/box
+
+    - name: Build PHAR
+      run: tools/box compile
+
+    - name: Upload PHAR artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bc-check.phar
+        path: bc-check.phar
+
+  release:
+    name: Create Release
+    needs: build-phar
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download PHAR artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: bc-check.phar
+
+    - name: Create GitHub Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: bc-check.phar
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
+        draft: true
+        generateReleaseNotes: true
