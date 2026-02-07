@@ -35,7 +35,11 @@
         "cs-check": "php-cs-fixer fix --dry-run --diff",
         "cs-fix": "php-cs-fixer fix",
         "qa": ["@phpstan", "@cs-check", "@test"],
-        "build-phar": "tools/box compile"
+        "build-phar": [
+            "if [ ! -f tools/box ]; then curl -Ls https://github.com/box-project/box/releases/download/4.6.6/box.phar -o tools/box && chmod +x tools/box; fi",
+            "if [ ! -f box.json ]; then cp box.json.dist box.json; fi",
+            "tools/box compile"
+        ]
     },
     "bin": ["bin/bc-check"],
     "config": {

@@ -7,3 +7,5 @@
 /coverage/
 /bin/
 phive.phar
+/tools/
+/box.json
